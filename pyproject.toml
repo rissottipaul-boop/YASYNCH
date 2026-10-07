@@ -1,0 +1,28 @@
+[project]
+name = "telegram-turntable"
+version = "0.1.0"
+description = "A private web player for music stored in Telegram"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+  "cryptography>=45,<47",
+  "fastapi>=0.116,<1",
+  "httpx[socks]>=0.28,<1",
+  "segno>=1.6,<2",
+  "telethon>=1.40,<2",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+# Loose modules at the repo root (app.py, run.py, …) — not an installable
+# package. Without this, `uv run` tries to build a wheel and hatchling fails.
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = []

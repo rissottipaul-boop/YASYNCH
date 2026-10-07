@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: telegram-turntable
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: TELEGRAM_API_ID
+        sync: false
+      - key: TELEGRAM_API_HASH
+        sync: false
+      - key: MUSICBRAINZ_CONTACT
+        sync: false
+      - key: DATA_DIR
+        value: /data
+      - key: PORT
+        value: 8000
+      - key: BIND_HOST
+        value: 0.0.0.0
+    disk:
+      name: turntable-data
+      mountPath: /data
+      sizeGB: 1
+

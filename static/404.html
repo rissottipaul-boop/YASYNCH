@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Not found — Telegram Turntable</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+    <!-- CSP sets style-src 'self', so the 404 design lives in an external sheet,
+         not an inline <style> block (which would be silently blocked). -->
+    <link rel="stylesheet" href="/assets/404.css" />
+  </head>
+  <body>
+    <main class="not-found" aria-labelledby="nf-title">
+      <section class="not-found-panel" data-404-panel>
+        <div class="not-found-mark" aria-hidden="true">404</div>
+        <h1 id="nf-title">Not in the crate</h1>
+        <p>
+          The page <code id="nf-path"></code> doesn't exist. If you followed a
+          link, it may have moved.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="/">Go to library</a>
+          <button class="button" type="button" onclick="history.back()">
+            Go back
+          </button>
+        </div>
+      </section>
+    </main>
+    <script>
+      // Path echo is textContent, never innerHTML — the URL is attacker-controlled.
+      document.getElementById("nf-path").textContent = location.pathname;
+      // Theme follows the same dataset contract as index.html so dark/light stay coherent.
+      try {
+        var t = localStorage.getItem("tm-theme") || "system";
+        document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </body>
+</html>
