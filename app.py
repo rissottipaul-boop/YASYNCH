@@ -508,6 +508,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def index() -> FileResponse:
         return FileResponse(ROOT / "static" / "index.html")
 
+    @application.get("/apple-music", response_class=HTMLResponse)
+    async def apple_music() -> FileResponse:
+        return FileResponse(ROOT / "static" / "apple-music.html")
+
     @application.get("/sw.js")
     async def service_worker() -> FileResponse:
         return FileResponse(
