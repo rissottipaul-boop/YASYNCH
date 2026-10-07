@@ -4,7 +4,7 @@
 // stale bytes and leak library contents into the caches API.
 
 const SHELL = "/";
-const SHELL_CACHE = "turntable-shell-v1";
+const SHELL_CACHE = "turntable-shell-v2";
 
 const SHELL_ASSETS = [
   "/",

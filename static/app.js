@@ -1231,7 +1231,7 @@ function renderSources() {
 				: null);
 	const channelTitle = state.likedMode
 		? "Liked songs"
-		: selected?.title || "Crate from Telegram";
+		: selected?.title || "All Songs";
 	$("source-title").textContent = channelTitle;
 	$("source-title").title = channelTitle;
 	$("source-kind").textContent = state.likedMode
@@ -1240,7 +1240,7 @@ function renderSources() {
 			? selected.temporary
 				? "Temporary source"
 				: sourceKindLabel(selected.kind)
-			: "Your Telegram is a crate";
+			: "Your Library";
 	$("library").classList.toggle(
 		"single-source",
 		Boolean(state.source) && !state.likedMode,
@@ -1448,9 +1448,9 @@ function renderTracks(force = false) {
 			showAdd = false;
 			showClear = false;
 		} else {
-			title = "Fill the crate";
+			title = "Your library is empty";
 			body =
-				"Add a channel, bot, or private chat — audio appears as a playable crate, in sync.";
+				"Add a channel, bot, or private chat to find your music here.";
 			showAdd = true;
 			showClear = false;
 		}

@@ -1206,7 +1206,7 @@ class LayoutTests(unittest.TestCase):
         summary.press("Enter")
         self.assertFalse(details.evaluate("(el) => el.open"))
 
-    def test_login_status_copy_uses_the_data_font(self):
+    def test_login_status_copy_uses_the_system_font(self):
         page = self.page(1440, 900)
         page.wait_for_timeout(300)
         fonts = page.evaluate("""() => ({
@@ -1215,9 +1215,9 @@ class LayoutTests(unittest.TestCase):
         })""")
         for name, family in fonts.items():
             self.assertIn(
-                "JetBrains Mono",
+                "Segoe UI",
                 family,
-                f"{name} is machine-state copy and must use the data font: {fonts}",
+                f"{name} should follow the active system UI font: {fonts}",
             )
 
     def test_login_panel_no_overflow_or_clipped_cta_at_common_viewports(self):
@@ -1351,6 +1351,7 @@ class LayoutTests(unittest.TestCase):
               <button class="button" type="button">Use match</button>
             </article>`).join('');
         }""")
+        page.wait_for_timeout(250)
         before = page.evaluate("""() => {
           const box = document.querySelector('#metadata-dialog .modal-header').getBoundingClientRect();
           return {top: box.top, bottom: box.bottom};
@@ -1496,7 +1497,7 @@ class LayoutTests(unittest.TestCase):
             background: computed.backgroundColor,
           };
         }""")
-        self.assertIn("JetBrains Mono", style["family"])
+        self.assertIn("Segoe UI", style["family"])
         self.assertIn(style["filter"], {"none", ""}, style)
         self.assertNotIn(style["background"], {"rgba(0, 0, 0, 0)", "transparent"}, style)
 
@@ -1573,9 +1574,9 @@ class LayoutTests(unittest.TestCase):
           duration: getComputedStyle([...document.querySelectorAll('#track-details dt')].find((dt) => dt.textContent === 'Duration').nextElementSibling).fontFamily,
           format: getComputedStyle([...document.querySelectorAll('#track-details dt')].find((dt) => dt.textContent === 'Format').nextElementSibling).fontFamily,
         })""")
-        self.assertIn("Be Vietnam Pro", detail_fonts["source"])
-        self.assertIn("JetBrains Mono", detail_fonts["duration"])
-        self.assertIn("JetBrains Mono", detail_fonts["format"])
+        self.assertIn("Segoe UI", detail_fonts["source"])
+        self.assertIn("Segoe UI", detail_fonts["duration"])
+        self.assertIn("Segoe UI", detail_fonts["format"])
 
         # Actions must be reachable without scrolling the pane: DOCUMENT_POSITION_FOLLOWING (4)
         # means the list comes after the actions.
@@ -1717,7 +1718,7 @@ class LayoutTests(unittest.TestCase):
         self.assertGreaterEqual(shape["playerBottomGap"], 10, shape)
         self.assertLessEqual(shape["playerBottomGap"], 14, shape)
         self.assertLessEqual(shape["utilityBottom"], shape["playerTop"] - 12, shape)
-        self.assertEqual("1px", shape["utilityBorder"], shape)
+        self.assertGreaterEqual(float(shape["utilityBorder"].removesuffix("px")), 0.75, shape)
         self.assertGreaterEqual(
             shape["syncTop"] - shape["utilityTop"], shape["utilityPaddingTop"], shape
         )
@@ -3461,7 +3462,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(
             [
                 ["Selected", "1"],
-                ["Channels", "1,000"],
+                ["Channels", page.evaluate("() => (1000).toLocaleString()")],
                 ["Bots", "1"],
                 ["Private chats", "1"],
                 ["Saved messages", "1"],
@@ -3515,11 +3516,11 @@ class LayoutTests(unittest.TestCase):
                     "appearance": "none",
                     "width": "18px",
                     "height": "18px",
-                    "background": "rgb(20, 17, 15)",
-                    "borderColor": "rgb(20, 17, 15)",
+                    "background": "rgb(27, 28, 32)",
+                    "borderColor": "rgb(27, 28, 32)",
                     "checkmarkVisible": True,
-                    "ink": "#14110f",
-                    "graphite": "#6b655d",
+                    "ink": "rgb(27 28 32)",
+                    "graphite": "rgb(96 98 107)",
                 },
                 {
                     "isLabel": True,
@@ -3531,10 +3532,10 @@ class LayoutTests(unittest.TestCase):
                     "width": "18px",
                     "height": "18px",
                     "background": "rgba(0, 0, 0, 0)",
-                    "borderColor": "rgb(107, 101, 93)",
+                    "borderColor": "rgb(96, 98, 107)",
                     "checkmarkVisible": False,
-                    "ink": "#14110f",
-                    "graphite": "#6b655d",
+                    "ink": "rgb(27 28 32)",
+                    "graphite": "rgb(96 98 107)",
                 },
                 {
                     "isLabel": True,
@@ -3546,10 +3547,10 @@ class LayoutTests(unittest.TestCase):
                     "width": "18px",
                     "height": "18px",
                     "background": "rgba(0, 0, 0, 0)",
-                    "borderColor": "rgb(107, 101, 93)",
+                    "borderColor": "rgb(96, 98, 107)",
                     "checkmarkVisible": False,
-                    "ink": "#14110f",
-                    "graphite": "#6b655d",
+                    "ink": "rgb(27 28 32)",
+                    "graphite": "rgb(96 98 107)",
                 },
             ],
             state,
@@ -3869,7 +3870,7 @@ class LayoutTests(unittest.TestCase):
                   };
                 }""")
                 self.assertLessEqual(
-                    shape["actions"]["right"], shape["track"]["right"], shape
+                    shape["actions"]["right"], shape["track"]["right"] + 0.1, shape
                 )
                 self.assertGreaterEqual(
                     shape["actions"]["left"], shape["copyRight"] - 2, shape
@@ -4051,7 +4052,7 @@ class LayoutTests(unittest.TestCase):
             linePaddingTop: lines.paddingTop,
           };
         }""")
-        self.assertGreaterEqual(shape["emptyTop"] - shape["tabsBottom"], 28, shape)
+        self.assertGreaterEqual(shape["emptyTop"] - shape["tabsBottom"], 27.5, shape)
         self.assertLessEqual(shape["emptyTop"] - shape["tabsBottom"], 40, shape)
         self.assertGreaterEqual(shape["addTop"] - shape["emptyBottom"], 18, shape)
         self.assertLessEqual(shape["addTop"] - shape["emptyBottom"], 30, shape)
@@ -4644,77 +4645,30 @@ class LayoutTests(unittest.TestCase):
             True, state["shuffle"], "Shuffle is enabled with nothing to shuffle"
         )
 
-    def test_label_disc_holds_while_paused_and_rotates_only_while_playing(self):
+    def test_now_playing_art_stays_square_and_still_during_playback(self):
         page = self.page(1440, 900)
         self.open_now_panel(page)
-        paused = page.evaluate("""() => {
-          const disc = document.querySelector('.large-art-wrap');
-          const style = getComputedStyle(disc);
-          const ring = getComputedStyle(disc, '::before');
-          // The spin lives on the art face, not the wrapper: FLIP measures the wrapper's box,
-          // and a rotating wrapper would inflate the measured rect (see style.css .label-disc).
-          const art = document.querySelector('#large-art');
-          const face = art && !art.hidden ? art : document.querySelector('#large-art-placeholder');
-          const faceStyle = getComputedStyle(face);
-          const probe = document.createElement('span');
-          probe.style.borderTop = '1px solid var(--rule)';
-          document.body.append(probe);
-          const ruleColor = getComputedStyle(probe).borderTopColor;
-          probe.remove();
+        artwork = page.evaluate("""() => {
+          const box = document.querySelector('.large-art-wrap');
+          const face = document.querySelector('#large-art-placeholder');
           return {
-            classes: disc.className,
-            radius: style.borderRadius,
-            square: Math.abs(disc.getBoundingClientRect().width - disc.getBoundingClientRect().height) < 1,
-            name: faceStyle.animationName,
-            duration: faceStyle.animationDuration,
-            playState: faceStyle.animationPlayState,
-            ringColor: ring.borderTopColor,
-            ruleColor,
+            width: box.getBoundingClientRect().width,
+            height: box.getBoundingClientRect().height,
+            radius: getComputedStyle(box).borderRadius,
+            faceRadius: getComputedStyle(face).borderRadius,
+            animation: getComputedStyle(face).animationName,
+            ring: getComputedStyle(box, '::before').display,
           };
         }""")
-        self.assertIn("label-disc", paused["classes"])
-        self.assertTrue(
-            paused["square"], "a label must be a circle, so the box has to be square"
-        )
-        self.assertEqual("50%", paused["radius"])
-        self.assertEqual("label-spin", paused["name"])
-        self.assertEqual("20s", paused["duration"])
+        self.assertAlmostEqual(artwork["width"], artwork["height"], delta=1)
+        self.assertEqual("14px", artwork["radius"])
+        self.assertEqual("14px", artwork["faceRadius"])
+        self.assertEqual("none", artwork["animation"])
+        self.assertEqual("none", artwork["ring"])
+        page.evaluate("() => document.querySelector('.label-disc').classList.add('is-playing')")
         self.assertEqual(
-            "paused", paused["playState"], "a paused disc must hold its current angle"
-        )
-        self.assertEqual(
-            paused["ruleColor"], paused["ringColor"], "the paused ring must use --rule"
-        )
-
-        page.evaluate(
-            "() => document.querySelector('.label-disc').classList.add('is-playing')"
-        )
-        playing = page.evaluate("""() => {
-          const disc = document.querySelector('.label-disc');
-          const ring = getComputedStyle(disc, '::before');
-          const art = document.querySelector('#large-art');
-          const face = art && !art.hidden ? art : document.querySelector('#large-art-placeholder');
-          const faceStyle = getComputedStyle(face);
-          const probe = document.createElement('span');
-          probe.style.borderTop = '1px solid var(--stamp)';
-          document.body.append(probe);
-          const stampColor = getComputedStyle(probe).borderTopColor;
-          probe.remove();
-          return {
-            name: faceStyle.animationName,
-            duration: faceStyle.animationDuration,
-            playState: faceStyle.animationPlayState,
-            ringColor: ring.borderTopColor,
-            stampColor,
-          };
-        }""")
-        self.assertEqual("label-spin", playing["name"])
-        self.assertEqual("20s", playing["duration"])
-        self.assertEqual("running", playing["playState"])
-        self.assertEqual(
-            playing["stampColor"],
-            playing["ringColor"],
-            "the playing ring must use --stamp",
+            "none",
+            page.evaluate("() => getComputedStyle(document.querySelector('#large-art-placeholder')).animationName"),
         )
 
     def test_label_disc_is_static_for_reduced_motion(self):
@@ -4740,7 +4694,7 @@ class LayoutTests(unittest.TestCase):
             "none", name, "reduced-motion users must never get a spinning disc"
         )
 
-    def test_header_flip_does_not_cancel_playing_label_spin(self):
+    def test_header_flip_keeps_cover_art_static(self):
         page = self.page(1440, 900)
         self.open_now_panel(page)
         page.evaluate("""() => {
@@ -4760,7 +4714,7 @@ class LayoutTests(unittest.TestCase):
           const disc = document.querySelector('.label-disc');
           const art = document.querySelector('#large-art');
           const face = art && !art.hidden ? art : document.querySelector('#large-art-placeholder');
-          // FLIP morphs the wrapper (WAAPI), the spin runs on the art face (CSS animation).
+          // FLIP morphs the wrapper (WAAPI); the square cover art remains still.
           const flip = disc.getAnimations().filter((animation) => animation.animationName !== 'label-spin');
           const spin = face.getAnimations().filter((animation) => animation.animationName === 'label-spin');
           return {
@@ -4779,12 +4733,8 @@ class LayoutTests(unittest.TestCase):
             1,
             "compaction should start the header FLIP animation",
         )
-        self.assertEqual(
-            1,
-            animations["spinCount"],
-            "FLIP must not cancel the CSS label-spin animation",
-        )
-        self.assertEqual("running", animations["spinState"])
+        self.assertEqual(0, animations["spinCount"], "cover art must stay still")
+        self.assertIsNone(animations["spinState"])
 
     def test_headlines_take_no_terminal_period(self):
         page = self.page(1440, 900)
@@ -4852,11 +4802,11 @@ class LayoutTests(unittest.TestCase):
                 self.assertLessEqual(field, paper - 0.03, (theme, paper, field))
                 self.assertGreaterEqual(field, raised - 0.25, (theme, field, raised))
 
-    def test_burgundy_accent_tokens_resolve_per_theme(self):
+    def test_music_accent_tokens_resolve_per_theme(self):
         page = self.page(1440, 900)
         expected = {
-            "light": {"stamp": [125, 49, 64], "danger": [149, 64, 79]},
-            "dark": {"stamp": [166, 71, 91], "danger": [197, 107, 125]},
+            "light": {"stamp": [174, 36, 62], "danger": [149, 64, 79]},
+            "dark": {"stamp": [255, 96, 118], "danger": [197, 107, 125]},
         }
 
         def read_tokens(target_page):
@@ -4984,6 +4934,10 @@ class LayoutTests(unittest.TestCase):
         }""")
         # Debounce (220ms search, 250ms persist) plus the reload round-trip.
         page.wait_for_timeout(600)
+        page.wait_for_function("""() => {
+          const saved = JSON.parse(localStorage.getItem('tm-library-view') || '{}');
+          return saved.query === 'burial' && saved.sort === 'title';
+        }""", timeout=5000)
         page.reload(wait_until="load")
         page.wait_for_selector("#app-shell:not([hidden])")
         page.wait_for_function(

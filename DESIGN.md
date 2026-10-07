@@ -98,6 +98,10 @@ components:
 
 # Design System: Telegram Turntable
 
+**Current web appearance:** The October 2026 music-inspired skin is specified in
+[`docs/design/2026-10-08-music-inspired-web.md`](docs/design/2026-10-08-music-inspired-web.md).
+The Record Crate palette and material rules below document the earlier design.
+
 ## 1. Overview
 
 **Creative North Star: "The Record Crate"**

@@ -8,7 +8,7 @@ const APP = readFileSync(new URL("./app.js", import.meta.url), "utf8");
 // Blank comments in place: deleting them shifts line numbers, so failures would cite the wrong
 // rule. Same length, same newlines, no comment content.
 const CSS = RAW.replace(/\/\*[\s\S]*?\*\//g, (match) => match.replace(/[^\n]/g, " "));
-const LINES = CSS.split("\n");
+const LINES = CSS.split(/\r?\n/);
 
 function tokenBlock(startPattern) {
   const start = LINES.findIndex((line) => startPattern.test(line));
