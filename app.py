@@ -380,21 +380,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     )
 
         response = await call_next(request)
-
-        if path == "/apple-music" or path.startswith("/assets/apple-music"):
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; "
-                "style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; "
-                "font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; "
-                "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
-            )
-        else:
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
-                "font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; "
-                "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
-            )
-
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+            "font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; "
+            "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+        )
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Frame-Options"] = "DENY"
