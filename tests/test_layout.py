@@ -325,6 +325,69 @@ class LayoutTests(unittest.TestCase):
         self.addCleanup(page.close)
         return page
 
+    def telegram_page(self, width=393, height=852, top=106, bottom=20):
+        page = self.browser.new_page(viewport={"width": width, "height": height})
+        page.add_init_script(
+            """window.Telegram = { WebApp: {
+                platform: 'ios', initData: 'test', isFullscreen: false,
+                contentSafeAreaInset: {top: __TOP__, right: 0, bottom: __BOTTOM__, left: 0},
+                safeAreaInset: {top: 59, right: 0, bottom: __BOTTOM__, left: 0},
+                onEvent() {},
+                ready() { window.__telegramReady = true; },
+                expand() { window.__telegramExpanded = true; },
+              }};""".replace("__TOP__", str(top)).replace("__BOTTOM__", str(bottom))
+        )
+        page.route(
+            "https://telegram.org/js/telegram-web-app.js?64",
+            lambda route: route.fulfill(status=200, content_type="text/javascript", body=""),
+        )
+        page.route(
+            "**/index.html",
+            lambda route: route.fulfill(
+                status=200,
+                content_type="text/html",
+                headers={
+                    "Content-Security-Policy": (
+                        "default-src 'self'; script-src 'self' https://telegram.org; "
+                        "style-src 'self'; img-src 'self' data:; font-src 'self'; "
+                        "media-src 'self'; connect-src 'self'; object-src 'none'; "
+                        "base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+                    )
+                },
+                body=(ROOT / "static" / "index.html").read_text(encoding="utf-8"),
+            ),
+        )
+        page.route("**/api/**", self._stub)
+        page.goto(f"http://127.0.0.1:{self.port}/index.html", wait_until="load")
+        page.wait_for_function("window.__telegramExpanded === true")
+        self.addCleanup(page.close)
+        return page
+
+    def test_telegram_iphone_layout_keeps_native_header_clear_and_dock_compact(self):
+        page = self.telegram_page()
+        self.assertTrue(page.evaluate("window.__telegramReady"))
+        self.assertTrue(page.locator("html.telegram-miniapp").count())
+        self.assertGreaterEqual(page.locator("#source-title").bounding_box()["y"], 106)
+        self.assertLess(page.locator(".player").bounding_box()["height"], 100)
+        self.assertTrue(page.locator("#play").is_visible())
+        self.assertTrue(page.locator("#next").is_visible())
+        self.assertFalse(page.locator("#shuffle").is_visible())
+        self.assertGreaterEqual(page.locator(".track-row").first.bounding_box()["y"], 200)
+
+        page.locator("#player-open").click()
+        self.assertTrue(page.locator("#now-panel").is_visible())
+        self.assertTrue(page.locator("#shuffle").is_visible())
+        self.assertTrue(page.locator("#previous").is_visible())
+        self.assertTrue(page.locator("#repeat").is_visible())
+        self.assertGreater(page.locator(".player").bounding_box()["height"], 110)
+
+    def test_telegram_header_fallback_and_source_drawer_avoid_native_controls(self):
+        page = self.telegram_page(top=0, bottom=0)
+        self.assertGreaterEqual(page.locator("#source-title").bounding_box()["y"], 96)
+        page.locator("#open-nav").click()
+        self.assertTrue(page.locator("#source-rail").is_visible())
+        self.assertGreaterEqual(page.locator("#close-nav").bounding_box()["y"], 96)
+
     def open_now_panel(self, page):
         page.evaluate("""() => {
           document.getElementById('app-shell').hidden = false;
@@ -4940,9 +5003,11 @@ class LayoutTests(unittest.TestCase):
         }""", timeout=5000)
         page.reload(wait_until="load")
         page.wait_for_selector("#app-shell:not([hidden])")
+        # The query is restored before the async first library page renders the
+        # saved sort into the select; its default "posted" value is not ready.
         page.wait_for_function(
-            """() => document.getElementById('track-search').value
-              && document.getElementById('track-sort').value""",
+            """() => document.getElementById('track-search').value === 'burial'
+              && document.getElementById('track-sort').value === 'title'""",
             timeout=5000,
         )
         view = page.evaluate("""() => ({

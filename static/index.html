@@ -30,7 +30,8 @@
     />
     <link rel="apple-touch-icon" href="/assets/icon-192.png" />
     <title>Telegram Turntable</title>
-    <link rel="stylesheet" href="/assets/style.css" />
+    <script src="/assets/telegram-loader.js?v=tg-mobile-1"></script>
+    <link rel="stylesheet" href="/assets/style.css?v=tg-mobile-1" />
   </head>
   <body>
     <svg class="svg-defs" aria-hidden="true">
@@ -503,10 +504,10 @@
               </p>
             </div>
             <div class="playlist-actions">
-              <button id="play-playlist" class="button primary" type="button">
+              <button id="play-playlist" class="button primary" type="button" aria-label="Play all songs" title="Play all songs">
                 <svg><use href="#i-play-filled" /></svg>Play
               </button>
-              <button id="shuffle-playlist" class="button" type="button">
+              <button id="shuffle-playlist" class="button" type="button" aria-label="Shuffle all songs" title="Shuffle all songs">
                 <svg><use href="#i-shuffle" /></svg>Shuffle
               </button>
             </div>
@@ -1537,6 +1538,6 @@
       ><button id="toast-action" type="button" hidden></button
       ><span class="toast-timer" aria-hidden="true"></span>
     </div>
-    <script type="module" src="/assets/app.js"></script>
+    <script type="module" src="/assets/app.js?v=tg-mobile-1"></script>
   </body>
 </html>

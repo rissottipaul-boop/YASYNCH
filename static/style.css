@@ -5772,3 +5772,262 @@ body::before { display: none; }
 	.player { background: color-mix(in srgb, var(--surface) 94%, transparent); }
 	.now-panel { background: var(--surface); }
 }
+
+/* Telegram's native header can cover the WebView on iOS. The bridge supplies the
+   measured insets; the fallback covers older clients which report zero. */
+html.telegram-miniapp {
+	--miniapp-content-top: 0px;
+	--miniapp-content-bottom: 0px;
+	--miniapp-device-top: 0px;
+	--miniapp-device-bottom: 0px;
+	--miniapp-top-fallback: 96px;
+	--miniapp-top: max(
+		var(--miniapp-top-fallback),
+		var(--miniapp-content-top),
+		var(--tg-content-safe-area-inset-top, 0px),
+		env(safe-area-inset-top, 0px)
+	);
+	--miniapp-bottom: max(
+		var(--miniapp-content-bottom),
+		var(--miniapp-device-bottom),
+		var(--tg-content-safe-area-inset-bottom, 0px),
+		var(--tg-safe-area-inset-bottom, 0px),
+		env(safe-area-inset-bottom, 0px)
+	);
+}
+html.telegram-miniapp.telegram-fullscreen {
+	--miniapp-top-fallback: 0px;
+	--miniapp-top: max(
+		var(--miniapp-content-top),
+		var(--miniapp-device-top),
+		var(--tg-content-safe-area-inset-top, 0px),
+		var(--tg-safe-area-inset-top, 0px),
+		env(safe-area-inset-top, 0px)
+	);
+}
+html.telegram-miniapp,
+html.telegram-miniapp body {
+	height: var(--tg-viewport-stable-height, 100dvh);
+}
+
+@media (max-width: 620px) {
+	html.telegram-miniapp {
+		--row-height: 58px;
+	}
+	html.telegram-miniapp .app-shell {
+		--player-height: calc(76px + var(--miniapp-bottom));
+	}
+	html.telegram-miniapp .app-shell.panel-open {
+		--player-height: calc(132px + var(--miniapp-bottom));
+	}
+	html.telegram-miniapp .library {
+		--library-header-space: calc(var(--miniapp-top) + 114px);
+	}
+	html.telegram-miniapp .library:has(#keep-source:not([hidden])) {
+		--library-header-space: calc(var(--miniapp-top) + 160px);
+	}
+	html.telegram-miniapp .library-header-inner {
+		display: grid;
+		min-height: 0;
+		grid-template-columns: 40px minmax(0, 1fr) auto;
+		grid-template-rows: 48px 44px;
+		grid-template-areas: "nav heading playlist" "tools tools tools";
+		align-items: center;
+		gap: 8px 6px;
+		padding: calc(var(--miniapp-top) + 4px) 0 8px;
+	}
+	html.telegram-miniapp #open-nav {
+		grid-area: nav;
+		width: 44px;
+		height: 44px;
+		margin: 0;
+	}
+	html.telegram-miniapp .library-heading {
+		grid-area: heading;
+		min-width: 0;
+		align-self: center;
+	}
+	html.telegram-miniapp .library-heading h1 {
+		margin: 0 0 2px;
+		font-size: 24px;
+		line-height: 1.1;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	html.telegram-miniapp .library-heading .small-copy {
+		display: block;
+		max-width: 100%;
+		overflow: hidden;
+		font-size: 11px;
+		line-height: 1.2;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	html.telegram-miniapp .playlist-actions {
+		grid-area: playlist;
+		display: flex;
+		gap: 4px;
+		margin: 0;
+		justify-self: end;
+	}
+	html.telegram-miniapp .playlist-actions .button {
+		width: 44px;
+		height: 44px;
+		min-height: 44px;
+		padding: 0;
+		font-size: 0;
+	}
+	html.telegram-miniapp .playlist-actions .button svg {
+		width: 19px;
+		height: 19px;
+	}
+	html.telegram-miniapp .header-actions {
+		grid-area: tools;
+		display: grid;
+		width: 100%;
+		grid-template-columns: minmax(0, 1fr) auto 44px;
+		gap: 6px;
+		align-items: center;
+		align-self: center;
+	}
+	html.telegram-miniapp .search-control,
+	html.telegram-miniapp .sort-trigger,
+	html.telegram-miniapp #sync-source {
+		min-height: 44px;
+		height: 44px;
+	}
+	html.telegram-miniapp #keep-source {
+		grid-column: 1 / -1;
+	}
+	html.telegram-miniapp .track-row {
+		height: 58px;
+		min-height: 58px;
+		padding-block: 4px;
+	}
+	html.telegram-miniapp .track-row .mini-art-wrap,
+	html.telegram-miniapp .track-row .mini-art,
+	html.telegram-miniapp .track-row .art-placeholder.mini {
+		width: 42px;
+		height: 42px;
+	}
+
+	/* The default dock is one identity row and a seek rail. The remaining transport
+	   controls become visible when the user opens Now Playing from the cover. */
+	html.telegram-miniapp .player {
+		left: 8px;
+		right: 8px;
+		bottom: 4px;
+		height: calc(68px + var(--miniapp-bottom));
+		grid-template-rows: 52px calc(14px + var(--miniapp-bottom));
+		border-radius: 15px;
+	}
+	html.telegram-miniapp .player-main {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: 52px;
+		gap: 0 4px;
+		padding: 0 10px;
+	}
+	html.telegram-miniapp .player-track {
+		grid-column: 1;
+		grid-row: 1;
+		min-width: 0;
+	}
+	html.telegram-miniapp .player-track-actions,
+	html.telegram-miniapp .player-utilities,
+	html.telegram-miniapp #shuffle,
+	html.telegram-miniapp #previous,
+	html.telegram-miniapp #repeat {
+		display: none;
+	}
+	html.telegram-miniapp .transport {
+		grid-column: 2;
+		grid-row: 1;
+		justify-self: end;
+		gap: 2px;
+	}
+	html.telegram-miniapp .transport .play-button {
+		width: 44px;
+		height: 44px;
+		margin: 0;
+	}
+	html.telegram-miniapp .transport #next {
+		width: 40px;
+		height: 44px;
+	}
+	html.telegram-miniapp .player-cover-button {
+		display: grid;
+		width: 44px;
+		height: 44px;
+		place-items: center;
+	}
+	html.telegram-miniapp .player .mini-art-wrap,
+	html.telegram-miniapp .player .mini-art,
+	html.telegram-miniapp .player .art-placeholder.mini {
+		width: 40px;
+		height: 40px;
+	}
+	html.telegram-miniapp .progress-row {
+		grid-row: 2;
+		align-items: flex-start;
+		padding: 0 12px var(--miniapp-bottom);
+		border-top: 0;
+	}
+	html.telegram-miniapp .progress-row .time-label {
+		display: none;
+	}
+	html.telegram-miniapp .progress {
+		height: 12px;
+	}
+	html.telegram-miniapp .app-shell.panel-open .player {
+		height: calc(124px + var(--miniapp-bottom));
+		grid-template-rows: 106px calc(14px + var(--miniapp-bottom));
+	}
+	html.telegram-miniapp .app-shell.panel-open .player-main {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: 44px 58px;
+	}
+	html.telegram-miniapp .app-shell.panel-open .player-track-actions {
+		display: flex;
+	}
+	html.telegram-miniapp .app-shell.panel-open .transport {
+		grid-column: 1;
+		grid-row: 2;
+		justify-self: center;
+		gap: 8px;
+	}
+	html.telegram-miniapp .app-shell.panel-open #shuffle,
+	html.telegram-miniapp .app-shell.panel-open #previous,
+	html.telegram-miniapp .app-shell.panel-open #repeat {
+		display: inline-grid;
+	}
+	html.telegram-miniapp .app-shell.panel-open .transport .icon-button {
+		width: 44px;
+		height: 44px;
+	}
+	html.telegram-miniapp .now-panel {
+		padding-top: calc(var(--miniapp-top) + 8px);
+	}
+	html.telegram-miniapp .source-rail {
+		padding-top: calc(var(--miniapp-top) + 4px);
+	}
+	html.telegram-miniapp .global-results {
+		top: calc(var(--miniapp-top) + 8px);
+		max-height: calc(100dvh - var(--miniapp-top) - var(--player-height) - 16px);
+	}
+	html.telegram-miniapp #context-menu {
+		max-height: calc(100dvh - var(--miniapp-top) - var(--player-height) - 8px);
+	}
+	html.telegram-miniapp dialog.modal {
+		max-height: calc(100dvh - var(--miniapp-top) - var(--miniapp-bottom) - 8px);
+	}
+	html.telegram-miniapp input:not([type="range"]),
+	html.telegram-miniapp textarea,
+	html.telegram-miniapp select {
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 620px) and (orientation: landscape) {
+	html.telegram-miniapp { --miniapp-top-fallback: 52px; }
+}

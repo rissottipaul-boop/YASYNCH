@@ -4,12 +4,14 @@
 // stale bytes and leak library contents into the caches API.
 
 const SHELL = "/";
-const SHELL_CACHE = "turntable-shell-v2";
+const SHELL_CACHE = "turntable-shell-v3";
 
 const SHELL_ASSETS = [
   "/",
-  "/assets/app.js",
-  "/assets/style.css",
+  "/assets/app.js?v=tg-mobile-1",
+  "/assets/telegram-loader.js?v=tg-mobile-1",
+  "/assets/telegram-miniapp.js?v=tg-mobile-1",
+  "/assets/style.css?v=tg-mobile-1",
   "/manifest.webmanifest",
 ];
 
