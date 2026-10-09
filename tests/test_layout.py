@@ -4956,6 +4956,11 @@ class LayoutTests(unittest.TestCase):
               === 'An Empty Bliss Beyond This World'""",
             timeout=5000,
         )
+        # The fixture serves an empty audio file. Its preload error must not
+        # trigger the automatic playback retry for a paused deep link.
+        page.wait_for_function(
+            "() => document.getElementById('audio').error !== null", timeout=5000
+        )
         state = page.evaluate("""() => ({
           active: document.querySelector('.source-entry.active')?.dataset.source,
           paused: document.getElementById('audio').paused,
@@ -4965,6 +4970,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual("-1003", state["active"], state)
         self.assertTrue(state["paused"], "a shared link must never hijack playback")
         self.assertIn("-1003:1003", unquote(state["src"] or ""))
+        self.assertNotIn("?retry=", state["src"] or "")
         self.assertIn("Now playing", state["status"])
 
     def test_back_button_walks_the_source_history(self):

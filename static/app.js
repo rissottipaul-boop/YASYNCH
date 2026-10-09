@@ -1780,6 +1780,12 @@ function setBuffering(buffering) {
 }
 
 async function startAudioPlayback() {
+	// Restored tracks are deliberately paused. If their initial media load failed,
+	// retry only after the listener explicitly presses Play.
+	if (state.current?.restored) {
+		state.current.restored = false;
+		if (audio.error) audio.src = mediaUrl(state.current, "audio");
+	}
 	setBuffering(true);
 	try {
 		await audio.play();
@@ -4608,6 +4614,8 @@ audio.addEventListener("error", () => {
 	if (audio.readyState >= 2) return; // HAVE_CURRENT_DATA
 	const track = state.current;
 	if (!track) return;
+	// Merely opening a shared link must not turn a failed preload into playback.
+	if (track.restored && audio.paused) return;
 	if (track._retried) {
 		// A file that fails twice is gone from Telegram (deleted message, revoked chat).
 		// Tell the user and move on with the queue instead of parking on a silent player,
